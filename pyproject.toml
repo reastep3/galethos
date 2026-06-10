@@ -1,0 +1,22 @@
+[project]
+name = "galethos"
+version = "0.1.0"
+description = "Kalshi weather market scanner: model-vs-market edge finder with Kelly sizing and holdings advice"
+requires-python = ">=3.11"
+dependencies = [
+    "requests>=2.31",
+    "cryptography>=42.0",
+    "rich>=13.0",
+    "flask>=3.0",
+    "gunicorn>=21.2",
+]
+
+[project.scripts]
+galethos = "galethos.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["galethos"]

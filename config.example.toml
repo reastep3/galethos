@@ -1,0 +1,40 @@
+# Copy to config.toml and edit. config.toml is gitignored.
+
+[bankroll]
+# Dollars you're willing to deploy across weather markets.
+# If Kalshi API auth is configured and use_balance = true, your live
+# available balance is used instead of `amount`.
+amount = 500.0
+use_balance = true
+
+[kalshi]
+# Needed only for holdings tracking / live balance. Market scanning works without it.
+# Create at kalshi.com -> Account -> API Keys. Download the RSA private key file.
+api_key_id = ""
+private_key_path = ""        # e.g. "/Users/you/.keys/kalshi.pem"
+
+[strategy]
+kelly_fraction = 0.25        # fraction of full Kelly (0.25 = quarter Kelly, sane default)
+min_edge = 0.05              # only recommend buys with >= 5c of edge after fees
+per_event_cap = 0.05         # max fraction of bankroll on any single event (city+day)
+max_total_exposure = 0.25    # max fraction of bankroll across all new recommendations
+sell_margin = 0.03           # recommend selling a holding when market pays >= 3c over model EV
+max_slippage = 0.02          # when sizing, only count book depth within 2c of best price
+min_contracts = 1
+fee_rate = 0.07              # Kalshi quadratic fee rate
+
+[model]
+# Ensemble members are recentered toward the NWS point forecast by this weight.
+# 1.0 = trust NWS anchor fully, 0.0 = raw model ensemble. NWS knows the quirky
+# stations (e.g. Central Park reads ~4-6F cool vs gridded models in summer).
+nws_blend = 0.75
+kernel_sigma = 1.6           # base smoothing (deg F) added around each ensemble member
+sigma_per_day = 0.5          # extra smoothing per day of forecast lead
+divergence_warn = 5.0        # refuse to bet an event when model median is this far (F) from market center
+max_disagreement = 0.35      # skip a bracket when model prob and market price differ by more than this
+ensemble_models = "ecmwf_ifs025,gfs025"
+
+# Per-station additive bias (deg F) applied to ensemble values BEFORE the NWS blend.
+# Positive = station reads warmer than models. Leave empty until you calibrate.
+[model.station_bias]
+# KNYC = -2.0

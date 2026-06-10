@@ -1,0 +1,42 @@
+# Fly.io config for Galethos.
+#
+# Secrets to set before deploy (config.toml stays local-only):
+#   fly secrets set GALETHOS_PASSWORD=...          # basic-auth gate, strongly recommended
+#   fly secrets set KALSHI_API_KEY_ID=...          # optional, for holdings/balance
+#   fly secrets set KALSHI_PRIVATE_KEY_PEM="$(cat ~/.keys/kalshi.pem)"
+#   fly secrets set GALETHOS_BANKROLL=500          # fallback when balance not used
+
+app            = "galethos"
+primary_region = "iad"
+
+[build]
+
+[env]
+  PYTHONUNBUFFERED = "1"
+  PORT             = "8080"
+  GALETHOS_DATA    = "/data"
+
+# Durable storage for the last scan result, survives stop/start and deploys.
+[mounts]
+  source      = "galethos_data"
+  destination = "/data"
+
+[http_service]
+  internal_port       = 8080
+  force_https         = true
+  auto_stop_machines  = "stop"   # sleep when idle to keep cost near zero
+  auto_start_machines = true
+  min_machines_running = 0
+  processes           = ["app"]
+
+  [[http_service.checks]]
+    interval      = "30s"
+    timeout      = "5s"
+    grace_period = "20s"
+    method       = "GET"
+    path         = "/healthz"
+
+[[vm]]
+  memory   = "512mb"
+  cpu_kind = "shared"
+  cpus     = 1
